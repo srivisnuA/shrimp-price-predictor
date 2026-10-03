@@ -1,0 +1,9 @@
+{
+  "regions": {
+    "india_andhra_pradesh": {"country": "India", "latitude": 16.50, "longitude": 81.00, "production_weight": 0.35},
+    "india_tamil_nadu": {"country": "India", "latitude": 11.00, "longitude": 79.80, "production_weight": 0.10},
+    "vietnam_mekong": {"country": "Viet Nam", "latitude": 9.80, "longitude": 105.80, "production_weight": 0.20},
+    "ecuador_guayas": {"country": "Ecuador", "latitude": -2.20, "longitude": -79.90, "production_weight": 0.25},
+    "indonesia_sumatra": {"country": "Indonesia", "latitude": -3.00, "longitude": 105.00, "production_weight": 0.10}
+  }
+}
