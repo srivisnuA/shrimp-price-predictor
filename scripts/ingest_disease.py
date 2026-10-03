@@ -7,7 +7,7 @@ from pathlib import Path
 import requests
 
 BASE = "https://www.dolthub.com/csv/ecohealthalliance/wahisdb/main"
-TABLES = ["wahis_epi_events", "wahis_outbreaks", "disease_key"]
+TABLES = ["wahis_epi_events", "wahis_outbreaks", "wahis_six_month_quantitative", "disease_key"]
 
 
 def main():
