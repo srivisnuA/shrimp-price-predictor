@@ -9,7 +9,7 @@ TARGET = "target_price_usd_kg"
 FEATURES = [
     "month", "target_price_usd_kg_lag1", "target_price_usd_kg_lag3", "target_price_usd_kg_roll3",
     "price_usd_kg_lag1", "t2m", "t2m_lag1", "t2m_roll3", "prectotcorr",
-    "prectotcorr_lag1", "prectotcorr_roll3", "shrimp_production_tonnes", "shrimp_production_tonnes_lag1", "disease_event_count",
+    "prectotcorr_lag1", "prectotcorr_roll3", "shrimp_production_tonnes", "shrimp_production_tonnes_lag1", "usd_inr", "wti_usd_bbl", "us_cpi", "disease_event_count",
     "disease_severity_lag1", "disease_severity_roll3"
 ]
 
@@ -102,6 +102,9 @@ def forecast_region(df: pd.DataFrame, region: str, horizon: int = 12, scenario: 
             "prectotcorr_roll3": float(state["prectotcorr"].tail(3).mean()),
             "shrimp_production_tonnes": float(scenario.get("production_tonnes", state["shrimp_production_tonnes"].iloc[-1])),
             "shrimp_production_tonnes_lag1": float(state["shrimp_production_tonnes"].iloc[-1]),
+            "usd_inr": float(scenario.get("usd_inr", state["usd_inr"].iloc[-1])),
+            "wti_usd_bbl": float(scenario.get("wti_usd_bbl", state["wti_usd_bbl"].iloc[-1])),
+            "us_cpi": float(scenario.get("us_cpi", state["us_cpi"].iloc[-1])),
             "disease_event_count": float(scenario.get("disease_events", seasonal["disease_event_count"].median())),
             "disease_severity_lag1": float(prev.get("disease_severity", 0)),
             "disease_severity_roll3": float(state["disease_severity"].tail(3).mean()) if "disease_severity" in state else 0.0,
