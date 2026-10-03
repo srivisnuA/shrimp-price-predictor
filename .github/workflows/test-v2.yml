@@ -1,0 +1,19 @@
+name: Test forecasting pipeline
+
+on:
+  pull_request:
+  push:
+    branches: ["main", "v2-real-data-forecasting"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-v2.txt
+      - run: python -m py_compile models/multivariate.py scripts/*.py validation/*.py
