@@ -17,6 +17,9 @@ def regional_forecast(
     rainfall_mm: float | None = None,
     disease_events: float | None = None,
     production_tonnes: float | None = None,
+    usd_inr: float | None = None,
+    wti_usd_bbl: float | None = None,
+    us_cpi: float | None = None,
 ):
     if not DATA_PATH.exists():
         raise HTTPException(status_code=503, detail="Master dataset is not available. Run scripts/run_pipeline.py first.")
@@ -28,6 +31,9 @@ def regional_forecast(
         "rainfall_mm": rainfall_mm,
         "disease_events": disease_events,
         "production_tonnes": production_tonnes,
+        "usd_inr": usd_inr,
+        "wti_usd_bbl": wti_usd_bbl,
+        "us_cpi": us_cpi,
     }.items() if v is not None}
     try:
         return forecast_region(df, region, horizon=horizon, scenario=scenario)
