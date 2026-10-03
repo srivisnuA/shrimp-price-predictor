@@ -72,8 +72,8 @@ def disease_events():
             for n in names:
                 if n in lower: return lower[n]
             return None
-        country_c = qcol("country", "country_name")
-        disease_c = qcol("disease_name", "disease", "disease_standardized")
+        country_c = qcol("country", "country_name", "reporting_country", "reporting_country_name")
+        disease_c = qcol("disease_name", "disease", "disease_standardized", "disease_standardized_name")
         date_c = qcol("date", "event_date", "semester_start", "period_start")
         if not date_c and "year" in lower:
             qdf["__date"] = pd.to_datetime(qdf[lower["year"]].astype(str) + "-01-01", errors="coerce")
@@ -84,7 +84,7 @@ def disease_events():
             case_cols = [c for c in numeric.columns if any(k in str(c).lower() for k in ["case", "dead", "death", "killed", "slaughter"])]
             impact = numeric[case_cols].sum(axis=1) if case_cols else pd.Series(1.0, index=qdf.index)
             out["severity"] = np.log1p(impact.clip(lower=0))
-            return out[out["disease"].str.lower().isin(DISEASES)].dropna(subset=["date"])
+            return out[out["disease"].str.lower().str.contains("white spot|wssv|acute hepatopancreatic|ahpnd|ems|early mortality|hepatopancreatic microsporidiosis|ehp|enterocytozoon|yellow head|taura syndrome|infectious myonecrosis", regex=True, na=False)].dropna(subset=["date"])
 
     if not p.exists():
         return pd.DataFrame(columns=["date", "country", "disease", "severity"])
