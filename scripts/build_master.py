@@ -24,6 +24,18 @@ def load_prices():
     return df
 
 
+def load_macro():
+    out = None
+    for name in ["usd_inr", "wti_usd_bbl", "us_cpi"]:
+        p = Path("data/raw/macro") / f"{name}.csv"
+        if not p.exists():
+            continue
+        df = pd.read_csv(p)
+        df["date"] = pd.to_datetime(df["date"])
+        out = df if out is None else out.merge(df, on="date", how="outer")
+    return out if out is not None else pd.DataFrame(columns=["date"])
+
+
 def load_trade(region):
     p = Path("data/raw/trade") / f"{region}.csv"
     if not p.exists():
@@ -98,6 +110,7 @@ def main():
     cfg = json.loads(Path("config/regions.json").read_text())["regions"]
     prices = load_prices()
     disease = disease_events()
+    macro = load_macro()
     frames = []
     for region, rcfg in cfg.items():
         weather = load_weather(region)
@@ -112,6 +125,7 @@ def main():
             weather = weather.merge(counts, on="date", how="left")
             weather[["disease_event_count", "disease_severity"]] = weather[["disease_event_count", "disease_severity"]].fillna(0)
         merged = weather.merge(prices, on="date", how="left")
+        merged = merged.merge(macro, on="date", how="left")
         trade = load_trade(region)
         production = load_production(rcfg["country"])
         merged["year"] = merged["date"].dt.year
