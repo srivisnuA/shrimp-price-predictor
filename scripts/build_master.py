@@ -24,6 +24,15 @@ def load_prices():
     return df
 
 
+def load_trade(region):
+    p = Path("data/raw/trade") / f"{region}.csv"
+    if not p.exists():
+        return pd.DataFrame(columns=["date", "trade_unit_value_usd_kg"])
+    df = pd.read_csv(p)
+    df["date"] = pd.to_datetime(df["date"])
+    return df
+
+
 def disease_events():
     p = Path("data/raw/disease/wahis_epi_events.csv")
     if not p.exists():
@@ -64,12 +73,17 @@ def main():
             weather = weather.merge(counts, on="date", how="left")
             weather[["disease_event_count", "disease_severity"]] = weather[["disease_event_count", "disease_severity"]].fillna(0)
         merged = weather.merge(prices, on="date", how="left")
+        trade = load_trade(region)
+        merged = merged.merge(trade, on="date", how="left")
+        merged["target_price_usd_kg"] = merged["trade_unit_value_usd_kg"].where(
+            merged["trade_unit_value_usd_kg"].notna(), merged["price_usd_kg"]
+        )
         merged["region"] = region
         merged["country"] = rcfg["country"]
         frames.append(merged)
     master = pd.concat(frames, ignore_index=True).sort_values(["region", "date"])
     # Leakage-safe lags and rolling features.
-    for c in ["price_usd_kg", "t2m", "prectotcorr", "disease_severity"]:
+    for c in ["target_price_usd_kg", "price_usd_kg", "trade_unit_value_usd_kg", "t2m", "prectotcorr", "disease_severity"]:
         if c in master:
             g = master.groupby("region")[c]
             master[f"{c}_lag1"] = g.shift(1)
