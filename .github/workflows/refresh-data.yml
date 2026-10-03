@@ -1,0 +1,30 @@
+name: Refresh shrimp forecasting data
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 1 * *"
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pipeline dependencies
+        run: pip install -r requirements-v2.txt
+      - name: Download and build master dataset
+        run: python scripts/run_pipeline.py
+      - name: Validate forecasting models
+        run: python validation/walk_forward.py
+      - name: Commit refreshed processed data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/processed/shrimp_master_monthly.csv
+          git diff --cached --quiet || git commit -m "Refresh shrimp forecasting dataset"
+          git push
