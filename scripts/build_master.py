@@ -1,7 +1,7 @@
 """Build the region-month master table used by the forecasting models."""
 from pathlib import Path
 import json
-import pandas as pd
+import pandas as pd\nimport numpy as np
 
 DISEASES = {
     "white spot disease", "white spot syndrome", "white spot syndrome virus", "wssv",
@@ -51,7 +51,29 @@ def load_production(country):
 
 
 def disease_events():
+    q = Path("data/raw/disease/wahis_six_month_quantitative.csv")
     p = Path("data/raw/disease/wahis_epi_events.csv")
+    if q.exists():
+        qdf = pd.read_csv(q, low_memory=False)
+        lower = {str(c).lower(): c for c in qdf.columns}
+        def qcol(*names):
+            for n in names:
+                if n in lower: return lower[n]
+            return None
+        country_c = qcol("country", "country_name")
+        disease_c = qcol("disease_name", "disease", "disease_standardized")
+        date_c = qcol("date", "event_date", "semester_start", "period_start")
+        if not date_c and "year" in lower:
+            qdf["__date"] = pd.to_datetime(qdf[lower["year"]].astype(str) + "-01-01", errors="coerce")
+            date_c = "__date"
+        if country_c and disease_c and date_c:
+            out = pd.DataFrame({"date": pd.to_datetime(qdf[date_c], errors="coerce"), "country": qdf[country_c].astype(str), "disease": qdf[disease_c].astype(str)})
+            numeric = qdf.apply(pd.to_numeric, errors="coerce")
+            case_cols = [c for c in numeric.columns if any(k in str(c).lower() for k in ["case", "dead", "death", "killed", "slaughter"])]
+            impact = numeric[case_cols].sum(axis=1) if case_cols else pd.Series(1.0, index=qdf.index)
+            out["severity"] = np.log1p(impact.clip(lower=0))
+            return out[out["disease"].str.lower().isin(DISEASES)].dropna(subset=["date"])
+
     if not p.exists():
         return pd.DataFrame(columns=["date", "country", "disease", "severity"])
     df = pd.read_csv(p, low_memory=False)
