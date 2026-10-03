@@ -98,6 +98,8 @@ def forecast_region(df: pd.DataFrame, region: str, horizon: int = 12, scenario: 
             "prectotcorr": float(scenario.get("rainfall_mm", seasonal["prectotcorr"].median())),
             "prectotcorr_lag1": float(prev.get("prectotcorr", seasonal["prectotcorr"].median())),
             "prectotcorr_roll3": float(state["prectotcorr"].tail(3).mean()),
+            "shrimp_production_tonnes": float(scenario.get("production_tonnes", state["shrimp_production_tonnes"].iloc[-1])),
+            "shrimp_production_tonnes_lag1": float(state["shrimp_production_tonnes"].iloc[-1]),
             "disease_event_count": float(scenario.get("disease_events", seasonal["disease_event_count"].median())),
             "disease_severity_lag1": float(prev.get("disease_severity", 0)),
             "disease_severity_roll3": float(state["disease_severity"].tail(3).mean()) if "disease_severity" in state else 0.0,
