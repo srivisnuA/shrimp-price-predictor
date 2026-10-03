@@ -1,0 +1,13 @@
+# Drytis workspace internals
+.drytis/
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+# Data backups
+*.bak
+# Env files (managed by platform)
+.env
+.env.*
+# Temp
+tmp/

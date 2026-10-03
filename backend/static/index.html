@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shrimp Price Predictor</title>
+<link rel="stylesheet" href="/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<header>
+  <div class="logo">🦐 Shrimp Price Predictor</div>
+  <div class="subtitle">ML forecasting from 20 years of prices, weather &amp; disease data</div>
+</header>
+<div id="error-banner" class="banner hidden">⚠️ Could not reach the API — please try refreshing.</div>
+<div id="toast" class="toast hidden"></div>
+<main>
+  <section class="metrics-row">
+    <div class="card metric"><div class="metric-label">Model</div><div class="metric-value small" id="metric-model">—</div><div class="metric-sub">auto-selected by backtest</div></div>
+    <div class="card metric"><div class="metric-label">MAE</div><div class="metric-value" id="metric-mae">—</div><div class="metric-sub">backtest avg error (USD/kg)</div></div>
+    <div class="card metric"><div class="metric-label">RMSE</div><div class="metric-value" id="metric-rmse">—</div><div class="metric-sub">root mean squared error</div></div>
+    <div class="card metric"><div class="metric-label">Naive baseline</div><div class="metric-value" id="metric-base">—</div><div class="metric-sub">last-value MAE (comparison)</div></div>
+  </section>
+
+  <section class="card chart-card">
+    <h2>Price history &amp; drivers (yearly)</h2>
+    <canvas id="history-chart" height="120"></canvas>
+    <div class="legend-note">Bars: disease outbreak severity · Line: avg price</div>
+  </section>
+
+  <section class="card chart-card scenario-card">
+    <h2>Advanced forecast — scenario controls</h2>
+    <div class="controls">
+      <div class="control grow">
+        <label>Forecast horizon: <span id="horizon-value">5</span> years</label>
+        <input type="range" id="horizon" min="1" max="10" value="5">
+      </div>
+      <div class="control grow">
+        <label>🌡️ Future temperature: <span id="temp-value">projected</span></label>
+        <input type="range" id="sc-temp" min="15" max="40" step="0.1" value="28.5">
+      </div>
+      <div class="control grow">
+        <label>🌧️ Future rainfall: <span id="rain-value">projected</span> mm</label>
+        <input type="range" id="sc-rain" min="0" max="3000" step="10" value="1450">
+      </div>
+      <div class="control grow">
+        <label>🦠 Disease outbreak severity: <span id="disease-value">projected</span></label>
+        <input type="range" id="sc-disease" min="0" max="100" value="40">
+      </div>
+    </div>
+    <canvas id="forecast-chart" height="120"></canvas>
+  </section>
+
+  <section class="card chart-card">
+    <h2>What drives the price</h2>
+    <canvas id="importance-chart" height="90"></canvas>
+  </section>
+
+  <section class="card upload-card">
+    <h2>Use your own data</h2>
+    <p class="hint">Upload a yearly CSV. Required: <code>year, avg_price_usd_kg</code>. Optional: <code>avg_temp_c, rainfall_mm, disease_outbreak_severity, disease_name, global_production_tonnes</code>. New years are merged in; use "Replace all" to start over.</p>
+    <div class="upload-row">
+      <input type="file" id="upload-file" accept=".csv">
+      <label class="checkbox"><input type="checkbox" id="upload-replace"> Replace all</label>
+      <button id="upload-btn" class="btn">Upload</button>
+    </div>
+    <a href="/api/prices/yearly" class="hint" download>Download current dataset as CSV</a>
+  </section>
+</main>
+<footer>Data-driven forecasts are statistical estimates, not market advice.</footer>
+<script src="/app.js"></script>
+</body>
+</html>
