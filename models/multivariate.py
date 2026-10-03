@@ -71,10 +71,12 @@ def fit_region(df: pd.DataFrame, region: str):
     best, scores = walk_forward(region_df, min_train=max(24, min(60, len(region_df) // 2)))
     model = MODELS[best]()
     model.fit(region_df[FEATURES], region_df[TARGET])
-    return model, best, scores, region_df
+    fitted = model.predict(region_df[FEATURES])
+    sigma = max(float(np.std(region_df[TARGET].to_numpy() - fitted)), 0.05)
+    return model, best, scores, region_df, sigma
 
 def forecast_region(df: pd.DataFrame, region: str, horizon: int = 12, scenario: dict | None = None):
-    model, best, scores, history = fit_region(df, region)
+    model, best, scores, history, sigma = fit_region(df, region)
     scenario = scenario or {}
     last = history.sort_values("date").iloc[-1]
     rows = []
@@ -107,7 +109,10 @@ def forecast_region(df: pd.DataFrame, region: str, horizon: int = 12, scenario: 
         X = pd.DataFrame([row])[FEATURES]
         prediction = max(float(model.predict(X)[0]), 0.01)
         row[TARGET] = prediction
+        spread = 1.96 * sigma * np.sqrt(h)
         row["prediction"] = round(prediction, 3)
+        row["lower"] = round(max(prediction - spread, 0.0), 3)
+        row["upper"] = round(prediction + spread, 3)
         row["year"] = int(date.year)
         rows.append(row)
         state = pd.concat([state, pd.DataFrame([row])], ignore_index=True)
@@ -117,5 +122,5 @@ def forecast_region(df: pd.DataFrame, region: str, horizon: int = 12, scenario: 
         "horizon_months": horizon,
         "scenario": scenario,
         "metrics": scores[best],
-        "predictions": [{k: r[k] for k in ["year", "date", "prediction"]} for r in rows]
+        "predictions": [{k: r[k] for k in ["year", "date", "prediction", "lower", "upper"]} for r in rows]
     }
