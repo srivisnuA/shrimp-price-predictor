@@ -33,6 +33,23 @@ def load_trade(region):
     return df
 
 
+COUNTRY_CODES = {"India": 356, "Viet Nam": 704, "Ecuador": 218, "Indonesia": 360}
+
+def load_production(country):
+    p = Path("data/raw/production/shrimp_aquaculture_fao.csv")
+    if not p.exists():
+        return pd.DataFrame(columns=["year", "shrimp_production_tonnes"])
+    df = pd.read_csv(p)
+    df["country_un_code"] = pd.to_numeric(df["country_un_code"], errors="coerce")
+    df["year"] = pd.to_numeric(df["year"], errors="coerce")
+    df["value_tonnes"] = pd.to_numeric(df["value_tonnes"], errors="coerce")
+    code = COUNTRY_CODES.get(country)
+    if code is None:
+        return pd.DataFrame(columns=["year", "shrimp_production_tonnes"])
+    out = df[df["country_un_code"].eq(code)].groupby("year", as_index=False)["value_tonnes"].sum()
+    return out.rename(columns={"value_tonnes": "shrimp_production_tonnes"})
+
+
 def disease_events():
     p = Path("data/raw/disease/wahis_epi_events.csv")
     if not p.exists():
@@ -74,6 +91,9 @@ def main():
             weather[["disease_event_count", "disease_severity"]] = weather[["disease_event_count", "disease_severity"]].fillna(0)
         merged = weather.merge(prices, on="date", how="left")
         trade = load_trade(region)
+        production = load_production(rcfg["country"])
+        merged["year"] = merged["date"].dt.year
+        merged = merged.merge(production, on="year", how="left")
         merged = merged.merge(trade, on="date", how="left")
         merged["target_price_usd_kg"] = merged["trade_unit_value_usd_kg"].where(
             merged["trade_unit_value_usd_kg"].notna(), merged["price_usd_kg"]
