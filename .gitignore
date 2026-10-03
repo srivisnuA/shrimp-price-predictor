@@ -11,3 +11,7 @@ __pycache__/
 .env.*
 # Temp
 tmp/
+
+# Generated/raw forecasting data
+/data/raw/
+/data/processed/*.parquet

@@ -9,13 +9,14 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 import data_store
-from routers import data, forecast
+from routers import data, forecast, multivariate
 
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(title="Shrimp Price Predictor", version="1.0.0")
 app.include_router(forecast.router)
 app.include_router(data.router)
+app.include_router(multivariate.router)
 
 STATIC_DIR = Path(__file__).parent / "static"
 
