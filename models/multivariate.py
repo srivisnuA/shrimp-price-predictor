@@ -9,7 +9,7 @@ TARGET = "target_price_usd_kg"
 FEATURES = [
     "month", "target_price_usd_kg_lag1", "target_price_usd_kg_lag3", "target_price_usd_kg_roll3",
     "price_usd_kg_lag1", "t2m", "t2m_lag1", "t2m_roll3", "prectotcorr",
-    "prectotcorr_lag1", "prectotcorr_roll3", "disease_event_count",
+    "prectotcorr_lag1", "prectotcorr_roll3", "shrimp_production_tonnes", "shrimp_production_tonnes_lag1", "disease_event_count",
     "disease_severity_lag1", "disease_severity_roll3"
 ]
 
