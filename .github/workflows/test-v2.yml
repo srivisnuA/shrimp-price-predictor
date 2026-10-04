@@ -1,19 +1,23 @@
-name: Test forecasting pipeline
+name: Validate shrimp forecasting code
 
 on:
   pull_request:
   push:
-    branches: ["main", "v2-real-data-forecasting"]
+    branches: [main, v2-real-data, v2-farmgate-toggle]
 
 jobs:
-  test:
+  python:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - run: pip install -r requirements-v2.txt
-      - run: python -m py_compile models/multivariate.py scripts/*.py validation/*.py
+      - name: Compile Python modules
+        run: |
+          python -m py_compile models/multivariate.py
+          python -m py_compile backend/ml/multivariate.py
+          python -m py_compile backend/routers/multivariate.py
+          python -m py_compile scripts/*.py
+          python -m py_compile validation/*.py

@@ -8,6 +8,8 @@ STEPS = [
     "scripts/ingest_macro.py",
     "scripts/ingest_weather.py",
     "scripts/ingest_disease.py",
+    "scripts/ingest_production.py",
+    "scripts/ingest_farmgate.py",
     "scripts/build_master.py",
 ]
 

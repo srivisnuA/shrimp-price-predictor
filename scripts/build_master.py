@@ -1,7 +1,8 @@
-"""Build the region-month master table used by the forecasting models."""
+import re
 from pathlib import Path
 import json
-import pandas as pd\nimport numpy as np
+import pandas as pd
+import numpy as np
 
 DISEASES = {
     "white spot disease", "white spot syndrome", "white spot syndrome virus", "wssv",

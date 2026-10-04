@@ -2,11 +2,16 @@
 
 The forecasting system uses source-backed data instead of the old hand-built yearly series.
 
-## Sources
+## Price targets
 
-- **Shrimp price:** IMF Primary Commodity Prices via FRED series `PSHRIUSDM` (monthly global shrimp benchmark, 1992-present).
-- **Weather:** NASA POWER monthly meteorological data (MERRA-2-derived meteorology from 1981 onward).
-- **Production:** FAO FishStat global aquaculture production (annual; shrimp species/country extraction is configurable).
-- **Disease:** WOAH WAHIS / EcoHealth Alliance WAHISDB public extract for aquatic disease events.
+- **Farm-gate:** Shrimp Insights public farm-gate portal, normalized monthly and filtered to configured species/size.
+- **Export:** UN Comtrade regional export unit value, with IMF/FRED global shrimp benchmark fallback.
 
-Raw downloads are intentionally not committed automatically when they are large, dynamically updated, or subject to source redistribution terms. Run the ingestion scripts to reproduce them locally.
+## Other sources
+
+- **Weather:** NASA POWER monthly meteorological data.
+- **Production:** FAO FishStat global aquaculture production.
+- **Disease:** WOAH WAHIS / EcoHealth Alliance WAHISDB public extract.
+- **Macro:** FRED USD/INR, WTI and US CPI.
+
+Raw downloads are intentionally not committed automatically when they are large, dynamically updated, or subject to source redistribution terms. The farm-gate source can be supplied through the portal download file or a direct URL.

@@ -18,6 +18,11 @@ jobs:
       - name: Install pipeline dependencies
         run: pip install -r requirements-v2.txt
       - name: Download and build master dataset
+        env:
+          # Optional: set this repository secret to the direct Shrimp Insights
+          # CSV/XLSX download URL when available. The pipeline also attempts
+          # best-effort public discovery from the farm-gate portal.
+          SHRIMP_FARMGATE_URL: ${{ secrets.SHRIMP_FARMGATE_URL }}
         run: python scripts/run_pipeline.py
       - name: Validate forecasting models
         run: python validation/walk_forward.py
