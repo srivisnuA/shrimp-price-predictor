@@ -2,6 +2,10 @@ name: Refresh shrimp forecasting data
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "data/processed/shrimp_master_monthly.csv"
   schedule:
     - cron: "17 3 1 * *"
 
