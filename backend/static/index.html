@@ -2,50 +2,73 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shrimp Price Predictor — Farm-Gate & Export Forecast</title>
+<title>Shrimp Price Predictor — Farm-Gate & Export</title>
 <link rel="stylesheet" href="/styles.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <header>
   <div class="logo">🦐 Shrimp Price Predictor</div>
-  <div class="subtitle">Forecast the price received at the farm gate or the later export-market price</div>
+  <div class="subtitle">Forecast farm-gate or export shrimp prices using market, weather, disease and supply signals</div>
 </header>
-
 <div id="error-banner" class="banner hidden"></div>
 <div id="toast" class="toast hidden"></div>
-
 <main>
 <section class="card scenario-card">
   <h2>Forecast controls</h2>
-
   <div class="control-group">
     <label class="section-label">Price basis</label>
     <div class="segmented">
       <label><input type="radio" name="price-type" id="price-export" value="export" checked> Export</label>
       <label><input type="radio" name="price-type" id="price-farmgate" value="farm_gate"> Farm-gate</label>
     </div>
-    <div id="price-basis-note" class="hint">
-      Export = regional shrimp export unit value when available, with IMF/FRED global benchmark fallback.
+  </div>
+
+  <div id="export-controls" class="control-group">
+    <label>Export region</label>
+    <select id="region"></select>
+  </div>
+
+  <div id="farmgate-controls" class="control-group hidden">
+    <div class="controls">
+      <div class="control grow"><label>Country</label><select id="fg-country"></select></div>
+      <div class="control grow"><label>Species</label><select id="fg-species"></select></div>
+      <div class="control grow"><label>Size</label><select id="fg-size"></select></div>
     </div>
-    <div id="farmgate-note" class="hint hidden">
-      Farm-gate = observed farmer-to-buyer price for Vannamei at the configured 60-count/kg size. No export-price fallback is used for the target.
-    </div>
+    <div id="farmgate-selection-info" class="hint"></div>
   </div>
 
   <div class="controls">
-    <div class="control grow"><label>Region</label><select id="region"></select></div>
-    <div class="control grow"><label>Forecast horizon: <span id="horizon-value">12</span> months</label><input type="range" id="horizon" min="1" max="36" value="12"></div>
-    <div class="control grow"><label>Future temperature: <span id="temp-value">seasonal</span></label><input type="range" id="sc-temp" min="15" max="40" step="0.1" value="28"></div>
-    <div class="control grow"><label>Future rainfall: <span id="rain-value">seasonal</span> mm</label><input type="range" id="sc-rain" min="0" max="3000" step="10" value="1450"></div>
-    <div class="control grow"><label>Disease pressure: <span id="disease-value">seasonal</span></label><input type="range" id="sc-disease" min="0" max="20" step="1" value="2"></div>
+    <div class="control grow">
+      <label>Forecast horizon: <span id="horizon-value">12</span> <span id="horizon-unit">months</span></label>
+      <input type="range" id="horizon" min="1" max="36" value="12">
+    </div>
+    <div class="control grow">
+      <label>Future temperature: <span id="temp-value">seasonal</span></label>
+      <input type="range" id="sc-temp" min="15" max="40" step="0.1" value="28">
+    </div>
+    <div class="control grow">
+      <label>Future rainfall: <span id="rain-value">seasonal</span> mm</label>
+      <input type="range" id="sc-rain" min="0" max="3000" step="10" value="1450">
+    </div>
+    <div class="control grow">
+      <label>Disease pressure: <span id="disease-value">seasonal</span></label>
+      <input type="range" id="sc-disease" min="0" max="20" step="1" value="2">
+    </div>
   </div>
   <label class="checkbox"><input type="checkbox" id="use-scenario"> Apply scenario values</label>
+
+  <div id="price-basis-note" class="hint">
+    Export uses the regional shrimp export unit-value proxy, with the IMF/FRED global benchmark available as a market fallback.
+  </div>
+  <div id="farmgate-note" class="hint hidden">
+    Farm-gate mode retains every country, species and size in the downloaded source. The model pools all varieties while conditioning on the selected country/species/size.
+  </div>
 </section>
 
 <section class="metrics-row">
-  <div class="card metric"><div class="metric-label">Selected model</div><div class="metric-value small" id="metric-model">—</div><div class="metric-sub">chosen by walk-forward MAE</div></div>
-  <div class="card metric"><div class="metric-label">History used</div><div class="metric-value" id="metric-history">—</div><div class="metric-sub">real target months</div></div>
+  <div class="card metric"><div class="metric-label">Selected model</div><div class="metric-value small" id="metric-model">—</div><div class="metric-sub">walk-forward selection</div></div>
+  <div class="card metric"><div class="metric-label">History</div><div class="metric-value" id="metric-history">—</div><div class="metric-sub" id="metric-history-sub">observations</div></div>
   <div class="card metric"><div class="metric-label">MAE</div><div class="metric-value" id="metric-mae">—</div><div class="metric-sub">USD/kg</div></div>
   <div class="card metric"><div class="metric-label">Next forecast</div><div class="metric-value" id="metric-next">—</div><div class="metric-sub">USD/kg</div></div>
 </section>
@@ -55,27 +78,25 @@
 </section>
 
 <section class="card chart-card">
-  <h2 id="history-title">Historical price, weather and disease</h2>
+  <h2 id="history-title">Historical export price, weather and disease</h2>
   <canvas id="history-chart" height="120"></canvas>
 </section>
 
 <section class="card chart-card">
-  <h2 id="forecast-title">Future shrimp price</h2>
+  <h2 id="forecast-title">Future export shrimp price</h2>
   <canvas id="forecast-chart" height="120"></canvas>
   <div class="legend-note">Shaded region = approximate 95% residual uncertainty interval.</div>
 </section>
 
 <section class="card">
-  <h2>How the forecast is built</h2>
+  <h2>What the farm-gate model uses</h2>
   <p class="hint">
-    Both price series are kept separately. Weather, disease outbreaks, aquaculture production,
-    market/macro variables and lagged prices drive the forecast. The farm-gate target only uses
-    months where a real farm-gate observation exists; missing farm-gate months are not silently
-    replaced by export prices.
+    Farm-gate forecasts use country, species, size/count, weekly price history, seasonal timing,
+    weather, disease, production, export-market price, global shrimp benchmark and macro variables when those context datasets are available.
+    The uploaded farm-gate source currently contains a short 2026 history, so the dashboard warns when longer-history evidence is unavailable.
   </p>
 </section>
 </main>
-
 <footer>Forecasts are statistical estimates, not trading or market advice.</footer>
 <script src="/app.js"></script>
 </body>

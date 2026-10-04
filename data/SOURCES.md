@@ -18,3 +18,7 @@ The dashboard now has two independent targets:
 - **Export:** regional export unit value where available, with the IMF/FRED global shrimp benchmark used only when regional trade data is unavailable.
 
 The Shrimp Insights portal states that its farm-gate figures are averages from local partners and should be treated as an indication of farm-gate price movement rather than an exact price for every transaction. The portal currently covers major origins including India, Ecuador, Indonesia and Viet Nam, with species/size filters.
+
+## Farm-gate source coverage
+
+The committed Shrimp Insights download is retained without filtering. The current file contains the source's available country, species and size combinations and 2026 weekly observations. The model does not pretend that this short window represents a decades-long farm-gate price history.

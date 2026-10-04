@@ -11,6 +11,7 @@ STEPS = [
     "scripts/ingest_production.py",
     "scripts/ingest_farmgate.py",
     "scripts/build_master.py",
+    "scripts/build_farmgate_master.py",
 ]
 
 for step in STEPS:

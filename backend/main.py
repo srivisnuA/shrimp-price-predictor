@@ -9,14 +9,15 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 import data_store
-from routers import data, forecast, multivariate
+from routers import data, forecast, multivariate, farmgate
 
 logging.basicConfig(level=logging.INFO)
 
-app = FastAPI(title="Shrimp Price Predictor", version="1.0.0")
+app = FastAPI(title="Shrimp Price Predictor", version="1.1.0")
 app.include_router(forecast.router)
 app.include_router(data.router)
 app.include_router(multivariate.router)
+app.include_router(farmgate.router)
 
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -44,7 +45,6 @@ def dimensions():
 @app.get("/api/prices/yearly")
 def prices_yearly(year_from: int | None = None, year_to: int | None = None):
     rows = data_store.yearly_records(year_from=year_from, year_to=year_to)
-    # sanitize: NaN/Inf cannot be serialized to JSON
     import math
     for row in rows:
         for k, v in row.items():
@@ -57,5 +57,5 @@ if STATIC_DIR.exists():
     app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
     @app.get("/")
-    def index():  # fallback so the dashboard always serves
+    def index():
         return FileResponse(STATIC_DIR / "index.html")

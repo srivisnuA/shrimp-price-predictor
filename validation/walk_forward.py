@@ -1,17 +1,21 @@
-"""CLI for leakage-safe walk-forward validation of both price bases."""
+"""Validate both the export model and the all-variety farm-gate model."""
 import pandas as pd
-from models.multivariate import walk_forward
+from models.multivariate import walk_forward as walk_forward_export
+from models.farmgate import walk_forward as walk_forward_farmgate
 
 if __name__ == "__main__":
-    df = pd.read_csv("data/processed/shrimp_master_monthly.csv", parse_dates=["date"])
+    export_path = "data/processed/shrimp_master_monthly.csv"
+    farm_path = "data/processed/farmgate_weekly.csv"
 
-    for price_type in ["export", "farm_gate"]:
-        try:
-            best, scores = walk_forward(df, price_type=price_type)
-        except ValueError as exc:
-            print(f"\n{price_type}: skipped — {exc}")
-            continue
+    export_df = pd.read_csv(export_path, parse_dates=["date"])
+    best, scores = walk_forward_export(export_df)
+    print("export best model:", best)
+    for name, metrics in scores.items():
+        print("export", name, metrics)
 
-        print(f"\n{price_type} best model: {best}")
-        for name, metrics in scores.items():
-            print(name, metrics)
+    farm_df = pd.read_csv(farm_path, parse_dates=["date"])
+    best_fg, scores_fg, baseline_fg = walk_forward_farmgate(farm_df)
+    print("farm-gate best model:", best_fg)
+    print("farm-gate latest-price baseline:", baseline_fg)
+    for name, metrics in scores_fg.items():
+        print("farm-gate", name, metrics)

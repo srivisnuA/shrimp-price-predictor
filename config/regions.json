@@ -4,41 +4,37 @@
       "country": "India",
       "latitude": 16.50,
       "longitude": 81.00,
-      "production_weight": 0.35,
-      "farm_gate_species": "Vannamei",
-      "farm_gate_size_count_per_kg": 60
+      "production_weight": 0.35
     },
     "india_tamil_nadu": {
       "country": "India",
       "latitude": 11.00,
       "longitude": 79.80,
-      "production_weight": 0.10,
-      "farm_gate_species": "Vannamei",
-      "farm_gate_size_count_per_kg": 60
+      "production_weight": 0.10
     },
     "vietnam_mekong": {
       "country": "Viet Nam",
       "latitude": 9.80,
       "longitude": 105.80,
-      "production_weight": 0.20,
-      "farm_gate_species": "Vannamei",
-      "farm_gate_size_count_per_kg": 60
+      "production_weight": 0.20
     },
     "ecuador_guayas": {
       "country": "Ecuador",
       "latitude": -2.20,
       "longitude": -79.90,
-      "production_weight": 0.25,
-      "farm_gate_species": "Vannamei",
-      "farm_gate_size_count_per_kg": 60
+      "production_weight": 0.25
     },
     "indonesia_sumatra": {
       "country": "Indonesia",
       "latitude": -3.00,
       "longitude": 105.00,
-      "production_weight": 0.10,
-      "farm_gate_species": "Vannamei",
-      "farm_gate_size_count_per_kg": 60
+      "production_weight": 0.10
+    },
+    "thailand_eastern": {
+      "country": "Thailand",
+      "latitude": 13.20,
+      "longitude": 101.00,
+      "production_weight": 0.00
     }
   }
 }

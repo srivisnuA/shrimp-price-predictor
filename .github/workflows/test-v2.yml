@@ -3,7 +3,7 @@ name: Validate shrimp forecasting code
 on:
   pull_request:
   push:
-    branches: [main, v2-real-data, v2-farmgate-toggle]
+    branches: [main, v2-real-data, v2-farmgate-toggle, v3-all-farmgate-model]
 
 jobs:
   python:
@@ -17,7 +17,10 @@ jobs:
       - name: Compile Python modules
         run: |
           python -m py_compile models/multivariate.py
+          python -m py_compile models/farmgate.py
           python -m py_compile backend/ml/multivariate.py
+          python -m py_compile backend/ml/farmgate.py
           python -m py_compile backend/routers/multivariate.py
+          python -m py_compile backend/routers/farmgate.py
           python -m py_compile scripts/*.py
           python -m py_compile validation/*.py

@@ -7,7 +7,13 @@ import pandas as pd
 import requests
 
 URL = "https://www.fao.org/fishery/static/Data/GlobalProduction_2026.1.0.zip"
-COUNTRIES = {"India": 356, "Viet Nam": 704, "Ecuador": 218, "Indonesia": 360}
+COUNTRIES = {
+    "India": 356,
+    "Viet Nam": 704,
+    "Ecuador": 218,
+    "Indonesia": 360,
+    "Thailand": 764,
+}
 
 
 def main():
@@ -19,26 +25,29 @@ def main():
     with zipfile.ZipFile(BytesIO(response.content)) as z:
         prod_name = next(n for n in z.namelist() if n.endswith("Global_production_quantity.csv"))
         species_name = next(n for n in z.namelist() if n.endswith("CL_FI_SPECIES_GROUPS.csv"))
-
         prod = pd.read_csv(z.open(prod_name), low_memory=False)
         species = pd.read_csv(z.open(species_name), low_memory=False)
 
     prod.columns = [str(c).strip().lower() for c in prod.columns]
     species.columns = [str(c).strip().lower() for c in species.columns]
 
-    # The 2026 FAO extract uses explicit species/country/source/measure codes.
-    required = {"year", "species_alpha_3_code", "country_un_code", "production_source_det_code", "measure", "value"}
+    required = {
+        "year",
+        "species_alpha_3_code",
+        "country_un_code",
+        "production_source_det_code",
+        "measure",
+        "value",
+    }
     missing = required - set(prod.columns)
     if missing:
         raise ValueError(f"Unexpected FAO schema; missing columns: {sorted(missing)}")
-
-    species_name_col = "name_en" if "name_en" in species.columns else None
-    if species_name_col is None:
+    if "name_en" not in species.columns:
         raise ValueError("FAO species lookup is missing name_en")
 
     shrimp_codes = set(
         species.loc[
-            species[species_name_col].astype(str).str.contains("shrimp|prawn", case=False, na=False),
+            species["name_en"].astype(str).str.contains("shrimp|prawn", case=False, na=False),
             "x3a_code",
         ].astype(str)
     )
@@ -48,7 +57,6 @@ def main():
     prod["value"] = pd.to_numeric(prod["value"], errors="coerce")
     prod["species_alpha_3_code"] = prod["species_alpha_3_code"].astype(str)
     prod["measure"] = prod["measure"].astype(str)
-    prod["production_source_det_code"] = prod["production_source_det_code"].astype(str)
 
     out_df = prod[
         prod["species_alpha_3_code"].isin(shrimp_codes)

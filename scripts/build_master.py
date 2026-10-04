@@ -46,7 +46,7 @@ def load_trade(region):
     return df
 
 
-COUNTRY_CODES = {"India": 356, "Viet Nam": 704, "Ecuador": 218, "Indonesia": 360}
+COUNTRY_CODES = {"India": 356, "Viet Nam": 704, "Ecuador": 218, "Indonesia": 360, "Thailand": 764}
 
 def load_production(country):
     p = Path("data/raw/production/shrimp_aquaculture_fao.csv")
