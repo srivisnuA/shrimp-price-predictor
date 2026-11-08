@@ -153,4 +153,6 @@ def test_metrics_and_static_assets(client):
     assert "Shrimp Forecast" in client.get("/").text
     assert client.get("/assets/app.js").status_code == 200
     assert client.get("/docs").status_code == 200
+    assert "https://cdn.jsdelivr.net" in client.get("/docs").headers["content-security-policy"]
+    assert "https://cdn.jsdelivr.net" not in client.get("/").headers["content-security-policy"]
     assert client.get("/", headers={"host": "untrusted.example"}).status_code == 400

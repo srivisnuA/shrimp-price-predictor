@@ -29,6 +29,12 @@ from shrimp_forecast.engine import forecast
 from shrimp_forecast.registry import Registry
 
 logger = logging.getLogger("shrimp.api")
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(handler)
+logger.setLevel(logging.INFO)
+logger.propagate = False
 STATIC = Path(__file__).parent / "static"
 
 
@@ -91,6 +97,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'",
             }
         )
+        if request.url.path in {"/docs", "/docs/oauth2-redirect", "/redoc"}:
+            # FastAPI's interactive documentation loads its renderer from jsDelivr.
+            # Keep this allowance scoped to documentation; the dashboard remains self-contained.
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; "
+                "style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'unsafe-inline'; "
+                "font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://fastapi.tiangolo.com; "
+                "object-src 'none'; frame-ancestors 'none'; base-uri 'self'"
+            )
         route = getattr(request.scope.get("route"), "path", "unmatched")
         duration = time.perf_counter() - started
         requests.labels(request.method, route, str(response.status_code)).inc()
