@@ -1,0 +1,9 @@
+{
+  "name": "shrimp-forecast-ui-tools",
+  "private": true,
+  "scripts": {
+    "check": "node --check backend/static/app.js && prettier --check backend/static",
+    "format": "prettier --write backend/static"
+  },
+  "devDependencies": { "prettier": "3.6.2" }
+}

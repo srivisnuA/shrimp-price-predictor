@@ -1,0 +1,57 @@
+name: Validate forecasting platform
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  tests:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.12', '3.13']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: '*requirements*.lock'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install -r requirements-dev.lock
+      - run: python -m pip install --no-deps -e .
+      - run: npm ci --ignore-scripts
+      - run: ruff check .
+      - run: ruff format --check shrimp_forecast backend tests scripts
+      - run: npm run check
+      - run: pytest --cov=shrimp_forecast --cov=backend --cov-fail-under=85 --cov-report=xml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.os }}-${{ matrix.python }}
+          path: coverage.xml
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build offline-data serving image
+        run: docker build -t shrimp:test .
+      - name: Check readiness and a forecast
+        shell: bash
+        run: |
+          docker run -d --name shrimp-test -p 8766:8000 shrimp:test
+          trap 'docker logs shrimp-test; docker rm -f shrimp-test' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail http://127.0.0.1:8766/api/ready; then break; fi
+            sleep 2
+          done
+          curl --fail http://127.0.0.1:8766/api/ready
+          curl --fail 'http://127.0.0.1:8766/api/v1/datasets/farmgate/forecast?series_id=in%3Avannamei%3A60&horizon=4'

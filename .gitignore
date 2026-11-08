@@ -9,9 +9,24 @@ __pycache__/
 # Env files (managed by platform)
 .env
 .env.*
+!.env.example
 # Temp
 tmp/
 
 # Generated/raw forecasting data
 /data/raw/
 /data/processed/*.parquet
+/.venv/
+/.preview/
+/artifacts/
+/data/processed/
+/data/uploads/
+/reports/local/
+/.coverage
+/htmlcov/
+/.ruff_cache/
+/build/
+/*.egg-info/
+/dist/
+/coverage.xml
+/node_modules/

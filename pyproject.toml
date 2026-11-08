@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shrimp-price-predictor"
+version = "3.0.0"
+description = "Auditable panel forecasting and serving for shrimp prices"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "fastapi>=0.115,<1", "uvicorn>=0.30,<1", "pandas>=2.2,<3",
+  "numpy>=2.1,<3", "scikit-learn>=1.6,<2", "joblib>=1.4,<2",
+  "python-multipart>=0.0.20,<1", "pydantic-settings>=2.7,<3",
+  "filelock>=3.16,<4", "prometheus-client>=0.21,<1",
+]
+
+[project.optional-dependencies]
+boosting = ["lightgbm>=4.5,<5"]
+dev = ["pytest>=8,<10", "pytest-cov>=6,<8", "httpx>=0.28,<1", "ruff>=0.11,<1"]
+
+[project.scripts]
+shrimp = "shrimp_forecast.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["shrimp_forecast*", "backend*"]
+exclude = ["backend.tests*"]
+
+[tool.setuptools.package-data]
+backend = ["static/*", "data/*.csv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 110
+extend-exclude = ["experiments"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+"backend/main.py" = ["B008"]
