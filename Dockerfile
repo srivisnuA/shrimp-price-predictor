@@ -16,7 +16,9 @@ RUN pip install --no-deps . && python -m shrimp_forecast.cli build-data \
 
 FROM base AS runtime
 COPY --from=trained /app /app
-RUN useradd --uid 10001 --create-home shrimp && mkdir -p /app/data/uploads && chown shrimp:shrimp /app/data/uploads
+RUN useradd --uid 10001 --user-group --create-home shrimp \
+    && mkdir -p /app/data/uploads && chown shrimp:shrimp /app/data/uploads \
+    && chown -R root:shrimp /app/artifacts && chmod -R g+rX /app/artifacts
 USER 10001
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"
