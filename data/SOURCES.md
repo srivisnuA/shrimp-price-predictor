@@ -1,24 +1,23 @@
-# Data provenance
+# Provenance and source limits
 
-| Dataset | Source | Frequency | Role |
-|---|---|---:|---|
-| Farm-gate shrimp price | Shrimp Insights Farm Gate Price portal | Weekly source, normalized monthly | Farmer-to-buyer raw shrimp target |
-| Global shrimp benchmark | IMF Primary Commodity Prices / FRED PSHRIUSDM | Monthly | Global benchmark |
-| Regional shrimp export unit value | UN Comtrade HS 030617 | Monthly | Export-market target/proxy |
-| Weather | NASA POWER / MERRA-2 meteorology | Monthly | Temperature, precipitation, humidity, wind |
-| Disease | WOAH WAHIS via EcoHealth Alliance WAHISDB extract | Event-based | Shrimp disease pressure |
-| Production | FAO FishStat | Annual | Supply-side feature |
-| Macro controls | FRED USD/INR, WTI, US CPI | Monthly | Market/macro controls |
+| Current input | Attribution | Status |
+|---|---|---|
+| Committed farm-gate CSV | Labeled as a Shrimp Insights portal download in the existing repository | Unverified provenance, 2026 weekly observations, no publication vintages |
+| Bundled monthly CSV | Existing illustrative sample | Demo data; not verified regional export observations |
+| Old yearly CSV | Prototype illustrative series, preserved under `experiments/legacy/backend/data` | Excluded from v3 training and serving |
 
-## Price-basis separation
+Attribution does not independently establish origin, accuracy, license or source
+reputation. The original committed inputs are preserved unchanged. Canonical
+derivatives record deterministic data hashes and quality counts. No missing
+targets are filled, and duplicate series/date keys fail validation.
 
-The dashboard now has two independent targets:
+The previous project listed IMF/FRED, UN Comtrade, NASA POWER, WAHIS, FAO and
+macro data as intended external inputs. Those scrapers are archived, excluded
+from training and no longer scheduled. Reintegrating a source requires a review
+of its geography/price basis, measurement definition, license, transformations,
+availability dates and revisions. Regional export unit values and a global
+commodity benchmark are different targets and must remain distinguishable.
 
-- **Farm-gate:** observed farmer-to-buyer price series from the Shrimp Insights farm-gate portal, filtered to the configured Vannamei size. Missing farm-gate observations are not replaced by export prices.
-- **Export:** regional export unit value where available, with the IMF/FRED global shrimp benchmark used only when regional trade data is unavailable.
-
-The Shrimp Insights portal states that its farm-gate figures are averages from local partners and should be treated as an indication of farm-gate price movement rather than an exact price for every transaction. The portal currently covers major origins including India, Ecuador, Indonesia and Viet Nam, with species/size filters.
-
-## Farm-gate source coverage
-
-The committed Shrimp Insights download is retained without filtering. The current file contains the source's available country, species and size combinations and 2026 weekly observations. The model does not pretend that this short window represents a decades-long farm-gate price history.
+Future verified files should carry the provenance described in the
+[observation contract](../docs/data-contract.md). Keep licensed or private source
+files out of Git unless redistribution is authorized.

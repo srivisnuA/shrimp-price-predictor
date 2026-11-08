@@ -1,0 +1,24 @@
+name: Benchmark committed data (no automatic promotion)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - run: pip install -r requirements.lock
+      - run: pip install --no-deps -e .
+      - run: shrimp build-data
+      - run: shrimp train --dataset farmgate --lightgbm --report reports/farmgate.json
+      - run: shrimp train --dataset benchmark --lightgbm --report reports/benchmark.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: model-evaluation
+          path: reports/*.json
